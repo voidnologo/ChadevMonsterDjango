@@ -1,7 +1,8 @@
+import django_fsm
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from .models import Article
+from articles.models import Article
 
 
 class ArticleTests(TestCase):
