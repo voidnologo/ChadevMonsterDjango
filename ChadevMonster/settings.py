@@ -127,3 +127,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
     ]
 }
+
+
+ADMIN_SITE_HEADER = 'Chadev Monster Admin'
