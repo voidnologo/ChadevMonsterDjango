@@ -16,7 +16,7 @@ class ArticleTests(TestCase):
     def test_reject(self):
         article = Article.objects.create(title='test', url='example.org')
         self.assertEqual(article.state, 'submitted')
-        article.approve(False)
+        article.reject()
         self.assertEqual(article.state, 'rejected')
 
     def test_cannot_be_published_if_in_submit_state(self):
@@ -28,7 +28,7 @@ class ArticleTests(TestCase):
 
     def test_cannot_be_published_if_in_rejected_state(self):
         article = Article.objects.create(title='test', url='example.org')
-        article.approve(False)
+        article.reject()
         self.assertEqual(article.state, 'rejected')
         with self.assertRaises(django_fsm.TransitionNotAllowed) as exc:
             article.publish()
@@ -36,7 +36,7 @@ class ArticleTests(TestCase):
 
     def test_publish(self):
         article = Article.objects.create(title='test', url='example.org')
-        article.approve(True)
+        article.approve()
         self.assertEqual(article.state, 'approved')
         article.publish()
         self.assertEqual(article.state, 'published')

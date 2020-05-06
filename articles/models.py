@@ -11,9 +11,13 @@ class Article(models.Model):
     def __str__(self):
         return self.title
 
-    @transition(field=state, source='submitted', target=RETURN_VALUE('approved', 'rejected'))
-    def approve(self, approve=True):
-        return 'approved' if approve else 'rejected'
+    @transition(field=state, source='submitted', target='approved')
+    def approve(self):
+        pass
+
+    @transition(field=state, source='submitted', target='rejected')
+    def reject(self):
+        pass
 
     @transition(field=state, source='approved', target='published')
     def publish(self):

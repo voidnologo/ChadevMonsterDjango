@@ -7,3 +7,4 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ['id', 'title', 'url', 'state']
+        read_only_fields = ['state']

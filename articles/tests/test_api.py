@@ -42,3 +42,60 @@ class ArticleTests(TestCase):
         self.assertEqual(article.title, title)
         self.assertEqual(article.url, 'http://example.org')
         self.assertEqual(article.state, 'submitted')
+
+    def test_approve_an_article(self):
+        a1 = Article.objects.create(title='Test1', url='example.com')
+        data = {'approve': True}
+        response = self.client.post(f'/api/articles/{a1.pk}/approve/', data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'approved'})
+        a = Article.objects.get(pk=a1.pk)
+        self.assertEqual(a.state, 'approved')
+
+    def test_reject_an_article(self):
+        a1 = Article.objects.create(title='Test1', url='example.com')
+        response = self.client.post(f'/api/articles/{a1.pk}/reject/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'rejected'})
+        a = Article.objects.get(pk=a1.pk)
+        self.assertEqual(a.state, 'rejected')
+
+    def test_publish_an_article(self):
+        a1 = Article.objects.create(title='Test1', url='example.com')
+        a1.approve()
+        a1.save()
+        response = self.client.post(f'/api/articles/{a1.pk}/publish/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'published'})
+        a = Article.objects.get(pk=a1.pk)
+        self.assertEqual(a.state, 'published')
+
+    def test_cannot_approve_an_article_if_it_is_rejected(self):
+        a1 = Article.objects.create(title='Test1', url='example.com')
+        a1.reject()
+        a1.save()
+        response = self.client.post(f'/api/articles/{a1.pk}/approve/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'invalid state change'})
+        a = Article.objects.get(pk=a1.pk)
+        self.assertEqual(a.state, 'rejected')
+
+    def test_cannot_reject_an_article_if_it_is_approved(self):
+        a1 = Article.objects.create(title='Test1', url='example.com')
+        a1.approve()
+        a1.save()
+        response = self.client.post(f'/api/articles/{a1.pk}/reject/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'invalid state change'})
+        a = Article.objects.get(pk=a1.pk)
+        self.assertEqual(a.state, 'approved')
+
+    def test_cannot_publish_an_article_if_it_is_rejected(self):
+        a1 = Article.objects.create(title='Test1', url='example.com')
+        a1.reject()
+        a1.save()
+        response = self.client.post(f'/api/articles/{a1.pk}/publish/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'invalid state change'})
+        a = Article.objects.get(pk=a1.pk)
+        self.assertEqual(a.state, 'rejected')
