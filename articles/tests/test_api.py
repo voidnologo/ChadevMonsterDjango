@@ -29,7 +29,7 @@ class ArticleTests(TestCase):
 
     def test_post_creates_an_article(self):
         title = 'new article'
-        url= 'http://example.org'
+        url= 'http://localhost'
         data  = {
             'title': title,
             'url': url,
@@ -40,13 +40,12 @@ class ArticleTests(TestCase):
         self.assertEqual(len(articles), 1)
         article = articles.get()
         self.assertEqual(article.title, title)
-        self.assertEqual(article.url, 'http://example.org')
+        self.assertEqual(article.url, url)
         self.assertEqual(article.state, 'submitted')
 
     def test_approve_an_article(self):
         a1 = Article.objects.create(title='Test1', url='example.com')
-        data = {'approve': True}
-        response = self.client.post(f'/api/articles/{a1.pk}/approve/', data=data)
+        response = self.client.post(f'/api/articles/{a1.pk}/approve/')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {'status': 'approved'})
         a = Article.objects.get(pk=a1.pk)
